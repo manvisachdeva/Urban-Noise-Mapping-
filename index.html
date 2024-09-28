@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Urban Noise Pollution Mapping</title>
+
+    <!-- Leaflet CSS for map styling -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+    <!-- jQuery for easier AJAX handling -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Leaflet JS for map functionality -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <style>
+        /* Basic styling for the page and map */
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        #map {
+            height: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Main title -->
+    <h1>Urban Noise Pollution Mapping</h1>
+
+    <!-- Div to hold the map -->
+    <div id="map"></div>
+
+    <!-- JS for fetching data and handling map -->
+    <script>
+        $(document).ready(function() {
+            // Initialize the map and set view to a default location (New York City)
+            var map = L.map('map').setView([40.7128, -74.0060], 12);
+
+            // Add tile layer to the map (using OpenStreetMap)
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+            }).addTo(map);
+
+            // To store markers and clear old ones
+            var markers = [];
+
+            // Function to fetch noise data from the server and plot it on the map
+            function fetchNoiseData() {
+                $.get('/get_noise', function(data) {
+                    // Clear old markers from the map
+                    markers.forEach(function(marker) {
+                        map.removeLayer(marker);
+                    });
+                    markers = []; // Reset the markers array
+
+                    // Loop through the fetched data and create markers
+                    data.forEach(function(noise) {
+                        var marker = L.marker([noise.latitude, noise.longitude])
+                            .addTo(map)
+                            .bindPopup('Noise Level: ' + noise.noise_level + ' dB<br>Time: ' + noise.timestamp);
+                        markers.push(marker);
+                    });
+                });
+            }
+
+            // Fetch noise data every 5 seconds to update the map
+            setInterval(fetchNoiseData, 5000);
+        });
+    </script>
+
+</body>
+</html>
