@@ -1,0 +1,79 @@
+CREATE DATABASE noise_pollution;
+USE noise_pollution;
+
+CREATE TABLE cities (
+    city_id INT AUTO_INCREMENT PRIMARY KEY,
+    city_name VARCHAR(100) NOT NULL
+);
+
+
+CREATE TABLE zones (
+    zone_id INT AUTO_INCREMENT PRIMARY KEY,
+    zone_name VARCHAR(100) NOT NULL
+);
+
+
+CREATE TABLE devices (
+    device_id INT AUTO_INCREMENT PRIMARY KEY,
+    device_type VARCHAR(100),         -- Type of device (e.g., Mobile, IoT Sensor)
+    device_name VARCHAR(100),         -- Specific device model
+    description TEXT                  -- Additional details about the device
+);
+
+-- Table for storing locations with reference to cities and zones
+CREATE TABLE locations (
+    location_id INT AUTO_INCREMENT PRIMARY KEY,
+    city_id INT,                      -- Reference to the city
+    zone_id INT,                      -- Reference to the zone type
+    description TEXT,                 -- Additional description of the location (optional)
+    FOREIGN KEY (city_id) REFERENCES cities(city_id),
+    FOREIGN KEY (zone_id) REFERENCES zones(zone_id)
+);
+
+
+CREATE TABLE noise_readings (
+    reading_id INT AUTO_INCREMENT PRIMARY KEY,
+    noise_level DECIMAL(5,2) NOT NULL,    
+    timestamp DATETIME NOT NULL,         
+    latitude DECIMAL(9,6) NOT NULL,       
+    longitude DECIMAL(9,6) NOT NULL,     
+    location_id INT,                    
+    device_id INT,                       
+    FOREIGN KEY (location_id) REFERENCES locations(location_id),
+    FOREIGN KEY (device_id) REFERENCES devices(device_id)
+);
+-- Insert some sample cities
+INSERT INTO cities (city_name) 
+VALUES ('New York'), ('Mumbai'), ('London'), ('Tokyo'), ('Berlin');
+
+-- Insert sample zones
+INSERT INTO zones (zone_name) 
+VALUES ('Residential'), ('Commercial'), ('Industrial'), ('Quiet Zone'), ('School Zone');
+
+-- Insert sample devices
+INSERT INTO devices (device_type, device_name, description) 
+VALUES ('Mobile', 'iPhone 13', 'iPhone used for noise measurement'),
+       ('Mobile', 'Samsung Galaxy S21', 'Samsung mobile for data collection'),
+       ('IoT Sensor', 'Noise Sensor Model X', 'Stationary noise sensor at intersection A'),
+       ('IoT Sensor', 'Noise Sensor Model Y', 'Portable noise sensor');
+
+
+INSERT INTO locations (city_id, zone_id, description) 
+VALUES 
+    (1, 1, 'Residential area in Brooklyn, New York'),
+    (2, 3, 'Industrial zone in Navi Mumbai'),
+    (3, 2, 'Commercial district in London'),
+    (4, 5, 'School zone near Tokyo International School'),
+    (5, 4, 'Quiet zone near a park in Berlin');
+    
+
+INSERT INTO noise_readings (noise_level, timestamp, latitude, longitude, location_id, device_id) 
+VALUES 
+    (72.5, '2024-09-01 10:30:00', 40.6782, -73.9442, 1, 1),  -- Brooklyn, iPhone
+    (85.0, '2024-09-01 11:00:00', 19.0330, 73.0297, 2, 3),  -- Navi Mumbai, Noise Sensor Model X
+    (65.3, '2024-09-01 12:15:00', 51.5074, -0.1278, 3, 2),  -- London, Samsung
+    (55.8, '2024-09-01 13:45:00', 35.6895, 139.6917, 4, 1), -- Tokyo, iPhone
+    (40.0, '2024-09-01 14:30:00', 52.5200, 13.4050, 5, 4);  -- Berlin, Portable Noise Sensor
+
+
+
